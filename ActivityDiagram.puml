@@ -1,0 +1,100 @@
+@startuml ActivityDiagram
+|Система денежных переводов|
+start
+:POST /api/v1/fraud-checks;
+|Anti-fraud System|
+:Проверить корректность 
+входных данных;
+if (Данные корректны?) then (Нет)
+:Сформировать ответ: 
+невалидные данные;
+|Система денежных переводов|
+:HTTP 400;
+end
+|Anti-fraud System|
+else (Да)
+:POST /api/v1/risk-score;
+fork
+:Получить список активных
+антифрод-правил из
+Fraud Rules DB;
+if (Ошибка получения правил?) then (Да)
+:Сформировать ответ:
+не удалось начать проверку;
+|Система денежных переводов|
+:HTTP 503;
+end
+|Anti-fraud System|
+else (Нет)
+repeat
+:Выполнить проверку по
+антифрод-правилу
+(см. Приложение А);
+repeat while (Остались активные правила?) is (Да)
+->Нет;
+:Сформировать результат проверки
+по антифрод-правилам;
+if (Ошибка формирования?) then (Да)
+:Сформировать ответ:
+не удалось завершить проверку;
+|Система денежных переводов|
+:HTTP 500;
+end
+endif
+endif
+fork again
+|AI Risk Scoring Service|
+repeat
+:Рассчитать 
+уровень 
+риска;
+|Anti-fraud System|
+:Обработать ответ
+AI Risk Scoring Service;
+repeat while (HTTP 5xx/timeout
+AND Retry count < 3?) is (Да)
+->Нет;
+end fork
+|Anti-fraud System|
+if (Уровень риска получен?) then (Да)
+:Сформировать итоговое решение
+по матрице и сохранить в Fraud Results DB;
+if (Approved?) then (Да)
+:Отправить ответ: Approved;
+|Система денежных переводов|
+:HTTP 200: Approved;
+stop
+else (Нет)
+|Anti-fraud System|
+if (Rejected?) then (Да)
+:Отправить ответ: Rejected;
+|Система денежных переводов|
+:HTTP 200: Rejected;
+stop
+else (Нет)
+endif
+endif
+else (Нет)
+endif
+|Антифрод-аналитик|
+:Провести
+ручную проверку и
+сохранить результат в
+Fraud Results DB
+(см. Приложение В);
+if (Одобрено?) then (Да)
+:Отправить ответ:
+Approved;
+|Система денежных переводов|
+:HTTP 200: Approved;
+stop
+|Антифрод-аналитик|
+else (Нет)
+:Отправить
+ответ:
+Rejected;
+|Система денежных переводов|
+:HTTP 200: Rejected;
+stop
+endif
+@enduml
