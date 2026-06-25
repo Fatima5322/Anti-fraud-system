@@ -1,4 +1,4 @@
-@startuml ActivityDiagram
+@startuml
 |Система денежных переводов|
 start
 :POST /api/v1/fraud-checks;
@@ -15,64 +15,53 @@ end
 else (Да)
 :POST /api/v1/risk-score;
 fork
+repeat
 :Получить список активных
 антифрод-правил из
 Fraud Rules DB;
-if (Ошибка получения правил?) then (Да)
-:Сформировать ответ:
-не удалось начать проверку;
-|Система денежных переводов|
-:HTTP 503;
-end
+repeat while (Ошибка получения правил 
+AND Retry count<3?) is (Да)
+->Нет;
+if (Правила получены?) then (Нет)
+:Отправить на Manual Review;
 |Anti-fraud System|
-else (Нет)
+else (Да)
 repeat
 :Выполнить проверку по
-антифрод-правилу
-(см. Приложение А);
+антифрод-правилу;
 repeat while (Остались активные правила?) is (Да)
 ->Нет;
+repeat
 :Сформировать результат проверки
 по антифрод-правилам;
-if (Ошибка формирования?) then (Да)
-:Сформировать ответ:
-не удалось завершить проверку;
-|Система денежных переводов|
-:HTTP 500;
-end
+repeat while (Ошибка формирования 
+AND Retry count<3?) is (Да)
+if (Результат сформирован?) then (Нет)
+:Отправить на Manual Review;
+else (Да)
 endif
 endif
 fork again
 |AI Risk Scoring Service|
-repeat
 :Рассчитать 
 уровень 
 риска;
 |Anti-fraud System|
 :Обработать ответ
-AI Risk Scoring Service;
-repeat while (HTTP 5xx/timeout
-AND Retry count < 3?) is (Да)
-->Нет;
+AI Risk Scoring Service
+(при ошибке см. шаг 10 таблицы);
 end fork
 |Anti-fraud System|
-if (Уровень риска получен?) then (Да)
+if (Все результаты проверки получены?) then (Да)
 :Сформировать итоговое решение
 по матрице и сохранить в Fraud Results DB;
-if (Approved?) then (Да)
-:Отправить ответ: Approved;
+if (Approved/Rejected?) then (Да)
+:Отправить ответ;
 |Система денежных переводов|
-:HTTP 200: Approved;
+:HTTP 200: Approved/Rejected;
 stop
 else (Нет)
 |Anti-fraud System|
-if (Rejected?) then (Да)
-:Отправить ответ: Rejected;
-|Система денежных переводов|
-:HTTP 200: Rejected;
-stop
-else (Нет)
-endif
 endif
 else (Нет)
 endif
@@ -80,21 +69,17 @@ endif
 :Провести
 ручную проверку и
 сохранить результат в
-Fraud Results DB
-(см. Приложение В);
+Fraud Results DB;
 if (Одобрено?) then (Да)
 :Отправить ответ:
 Approved;
-|Система денежных переводов|
-:HTTP 200: Approved;
-stop
-|Антифрод-аналитик|
 else (Нет)
 :Отправить
 ответ:
 Rejected;
+endif
 |Система денежных переводов|
-:HTTP 200: Rejected;
+:HTTP 200: Approved/Rejecte;
 stop
 endif
 @enduml
