@@ -48,8 +48,7 @@ fork again
 риска;
 |Anti-fraud System|
 :Обработать ответ
-AI Risk Scoring Service
-(при ошибке см. шаг 10 таблицы);
+AI Risk Scoring Service;
 end fork
 |Anti-fraud System|
 if (Все результаты проверки получены?) then (Да)
