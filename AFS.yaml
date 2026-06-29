@@ -1,0 +1,1207 @@
+openapi: 3.1.0
+info:
+  title: Anti-fraud System
+  description: Система антифрод-проверки денежных P2P-переводов 
+  termsOfService: https://courses.ru/terms
+  contact:
+    name: Фатима
+    url: https://www.course.com/support
+    email: openapi.example@mail.ru
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 2.0.0
+components:
+  schemas:
+    fraudCheck:
+      type: object
+      description: Проверка P2P-транзакции на предмет мошенничества
+      required:
+        - checkId
+        - transactionId
+        - senderAccount
+        - recipientAccount
+        - amount
+        - currency
+        - transactionDate
+        - ipAddress
+        - originCountry
+        - deviceId
+        - paymentChannel
+        - tariff
+        - status
+        - rulesDecision
+        - riskLevel
+        - automaticDecision
+        - finalDecision
+        - createdAt
+        - completedAt
+      properties:
+        checkId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор антифрод-проверки
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+        transactionId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор транзакции
+          example: "5a5cb1d2-38e5-4d39-b6a0-215dfe4e7138"
+        senderAccount:
+          type: string
+          description: Номер счета отправителя
+          example: "NL91ABNA0417164300"
+        recipientAccount:
+          type: string
+          description: Номер счета получателя
+          example: "NL20INGB0001234567"
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Сумма перевода
+          example: 1500.50
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: Валюта
+          example: "EUR"
+        transactionDate:
+          type: string
+          format: date-time
+          description: Дата и время инициации транзакции
+          example: "2026-07-01T15:30:00Z"
+        ipAddress:
+          type: string
+          description: IP-адрес клиента
+          example: "192.168.10.15"
+        originCountry:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: Код страны, из которой была инициирована транзакция
+          example: "NL"
+        deviceId:
+          type: string
+          description: Уникальный идентификатор девайса, с которого инициирована транзакция
+          example: "device-f3c91d88"
+        paymentChannel:
+          type: string
+          description: Канал, через который была инициирована транзакция
+          enum:
+            - MOBILE_APP
+            - WEB
+          example: "MOBILE_APP"
+        tariff:
+          type: string
+          description: Тарифный план клиента
+          example: "Premium"
+        status:
+          type: string
+          description: Текущий статус проверки
+          enum:
+            - IN_PROGRESS
+            - MANUAL_REVIEW
+            - COMPLETED
+          example: "IN_PROGRESS"
+        rulesDecision:
+          type:
+            - string
+            - "null"
+          description: Решение, принятое по итогам проверки по антифрод-правилам
+          enum:
+            - APPROVED
+            - REJECTED
+            - MANUAL_REVIEW
+          example: "APPROVED"
+        riskLevel:
+          type:
+            - string
+            - "null"
+          description: Уровень риска, полученный от AI Risk Scoring Service
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - UNKNOWN
+          example: "LOW"
+        automaticDecision:
+          type:
+            - string
+            - "null"
+          description: Автоматическое решение, принятое по матрице принятия решения
+          enum:
+            - APPROVED
+            - REJECTED
+            - MANUAL_REVIEW
+          example: "APPROVED"
+        finalDecision:
+          type:
+            - string
+            - "null"
+          description: Финальное решение по операции
+          enum:
+            - APPROVED
+            - REJECTED
+          example: "APPROVED"
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время начала проверки
+          example: "2026-07-01T15:30:01Z"
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Дата и время окончания проверки
+          example: "2026-07-01T15:30:07Z"
+    manualReview:
+      type: object
+      description: Ручная проверка антифрод-аналитиком
+      required:
+        - reviewId
+        - checkId
+        - status
+        - comment
+        - finalDecision
+        - createdAt
+        - completedAt
+      properties:
+        reviewId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор ручной проверки
+          example: "f44bdb95-5b34-4328-8d63-b37b44d5eaf4"
+        checkId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор антифрод-проверки
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+        status:
+          type: string
+          description: Текущий статус проверки
+          enum:
+            - IN_PROGRESS
+            - COMPLETED
+          example: "IN_PROGRESS"
+        comment:
+          type:
+            - string
+            - "null"
+          maxLength: 1000
+          description: Комментарий антифрод-аналитика
+        finalDecision:
+          type:
+            - string
+            - "null"
+          description: Финальное решение по операции
+          enum:
+            - APPROVED
+            - REJECTED
+          example: "APPROVED"
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания ручной проверки
+          example: "2026-07-01T15:30:08Z"
+        completedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Дата и время окончания ручной проверки
+          example: "2026-07-01T16:05:17Z"
+    fraudRule:
+      type: object
+      description: Антифрод-правило
+      required:
+        - ruleId
+        - ruleName
+        - ruleDescription
+        - isActive
+        - createdAt
+        - updatedAt
+      properties:
+        ruleId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор антифрод-правила
+          example: "2b9fa56f-1980-4cf9-9dcb-91b89cbff6cb"
+        ruleName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название антифрод-правила
+          example: "Крупная сумма"
+        ruleDescription:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: Описание правила
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+        isActive:
+          type: boolean
+          description: Индикатор активности правила
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания правила
+          example: "2026-06-25T09:00:00Z"
+        updatedAt:
+          type: 
+            - string
+            - "null"
+          format: date-time
+          description: Дата и время последнего обновления правила
+          example: "2026-06-28T12:15:43Z"
+    link:
+      type: object
+      description: Ссылка для навигации по доступным действиям
+      required:
+        - href
+        - method
+      properties:
+        href:
+          type: string
+          description: Целевой URI ресурса
+          example: "/api/v1/fraud-checks/7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+        method:
+          type: string
+          description: HTTP-метод, разрешенный для ресурса
+          enum:
+            - GET
+            - POST
+            - PATCH
+          example: "GET"
+    errorResponse:
+      type: object
+      description: Ответ при ошибке
+      required:
+        - timestamp
+        - errorCode
+        - errorName
+        - message
+        - traceId
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Дата и время возникновения ошибки
+          example: "2026-07-01T15:30:10Z"
+        errorCode:
+          type: integer
+          description: Код статуса
+          example: 404
+        errorName:
+          type: string
+          description: Название ошибки
+          example: "Not Found"
+        message:
+          type: string
+          description: Описание ошибки
+          example: "Проверка не найдена"
+        traceId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор трассировки запроса
+          example: "588bb405-6ecd-4468-af0b-1d7cdb190c7e"
+    fraudCheckCreateRequest:
+      type: object
+      description: Запрос на создание проверки
+      additionalProperties: false
+      required:
+        - transactionId
+        - senderAccount
+        - recipientAccount
+        - amount
+        - currency
+        - transactionDate
+        - ipAddress
+        - originCountry
+        - deviceId
+        - paymentChannel
+        - tariff
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор транзакции
+          example: "5a5cb1d2-38e5-4d39-b6a0-215dfe4e7138"
+        senderAccount:
+          type: string
+          minLength: 20
+          maxLength: 34
+          description: Номер счета отправителя
+          example: "NL91ABNA0417164300"
+        recipientAccount:
+          type: string
+          minLength: 20
+          maxLength: 34
+          description: Номер счета получателя
+          example: "NL20INGB0001234567"
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Сумма перевода
+          example: 1500.50
+        currency:
+          type: string
+          description: Валюта
+          example: "EUR"
+        transactionDate:
+          type: string
+          format: date-time
+          description: Дата и время инициации транзакции
+          example: "2026-07-01T15:30:00Z"
+        ipAddress:
+          type: string
+          description: IP-адрес клиента
+          example: "192.168.10.15"
+        originCountry:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: Код страны, из которой была инициирована транзакция
+          example: "NL"
+        deviceId:
+          type: string
+          maxLength: 100
+          description: Уникальный идентификатор девайса, с которого инициирована транзакция
+          example: "device-f3c91d88"
+        paymentChannel:
+          type: string
+          description: Канал, через который была инициирована транзакция
+          enum:
+            - MOBILE_APP
+            - WEB
+          example: "MOBILE_APP"
+        tariff:
+          type: string
+          maxLength: 50
+          description: Тарифный план клиента
+          example: "Premium"
+    publicFraudCheckResponse:
+      type: object
+      description: Публичная информация о проверке, доступная платежной системе
+      required:
+        - checkId
+        - status
+        - finalDecision
+        - _links
+      properties:
+        checkId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор антифрод-проверки
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+        status:
+          type: string
+          description: Текущий статус проверки
+          enum:
+            - IN_PROGRESS
+            - MANUAL_REVIEW
+            - COMPLETED
+          example: "IN_PROGRESS"
+        finalDecision:
+          type:
+            - string
+            - "null"
+          description: Финальное решение по операции
+          enum:
+            - APPROVED
+            - REJECTED
+          example: "APPROVED"
+        _links:
+          type: object
+          description: Ссылки
+          properties:
+            self:
+              $ref: "#/components/schemas/link"
+    internalFraudCheckResponse:
+      description: Полная информация о проверке, доступная внутренним пользователям
+      allOf:
+        - $ref: "#/components/schemas/fraudCheck"
+        - type: object
+          properties:
+            manualReview:
+              oneOf:
+                - $ref: "#/components/schemas/manualReview"
+                - type: "null"
+    manualReviewUpdateRequest:
+      type: object
+      description: Запрос на обновление ручной проверки
+      additionalProperties: false
+      required:
+        - finalDecision
+      properties:
+        comment:
+          type: 
+            - string
+            - "null"
+          minLength: 1
+          maxLength: 1000
+          description: Комментарий антифрод-аналитика
+        finalDecision:
+          type: string
+          enum:
+            - APPROVED
+            - REJECTED
+          description: Финальное решение по операции
+          example: "APPROVED"
+    manualReviewResponse:
+      description: Информация о ручной проверке
+      allOf:
+        - $ref: "#/components/schemas/manualReview"
+        - type: object
+          required:
+            - _links
+          properties:
+            _links:
+              type: object
+              properties:
+                self:
+                  $ref: "#/components/schemas/link"
+                fraudCheck:
+                  $ref: "#/components/schemas/link"
+                update:
+                  $ref: "#/components/schemas/link"
+    fraudRuleCreateRequest:
+      type: object
+      description: Запрос на создание антифрод-правила
+      additionalProperties: false
+      required:
+        - ruleName
+        - ruleDescription
+      properties:
+        ruleName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название антифрод-правила
+          example: "Крупная сумма"
+        ruleDescription:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: Описание антифрод-правила
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+    fraudRuleUpdateRequest:
+      type: object
+      description: Запрос на обновление антифрод-правила
+      additionalProperties: false
+      properties:
+        ruleName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название антифрод-правила
+          example: "Крупная сумма"
+        ruleDescription:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: Описание антифрод-правила
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+        isActive:
+          type: boolean
+          description: Индикатор активности правила
+          example: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+paths:
+  /fraud-checks:
+    get:
+      tags:
+        - Fraud Checks
+      summary: Показать список проверок
+      description: Показывает список всех проверок с данными, доступными внутренним пользователям
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Количество элементов на странице
+          schema: 
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+        - name: status
+          in: query
+          required: false
+          description: Фильтр по статусу проверки
+          schema:
+            type: string
+            enum:
+              - IN_PROGRESS
+              - MANUAL_REVIEW
+              - COMPLETED
+          example: MANUAL_REVIEW
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/internalFraudCheckResponse'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Fraud Checks
+      summary: Создать антифрод-проверку
+      description: Создает антифрод-проверку
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности запроса
+          schema:
+            type: string
+            format: uuid
+          example: "91f3bb9b-6227-40c4-84fa-58d7bc6d1b21"
+      requestBody:
+        required: true
+        description: Данные транзакции
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fraudCheckCreateRequest'
+      responses:
+        '202':
+          description: Запрос на проверку принят
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/publicFraudCheckResponse'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '409':
+          description: Конфликт
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '422':
+          description: Данные не соответствуют бизнес-правилам
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Превышен лимит запросов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '504':
+          description: Тайм-аут
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+  /fraud-checks/{checkId}:
+    get:
+      tags:
+        - Fraud Checks
+      summary: Показать краткую информацию о проверке (внешний пользователь)
+      description: Возвращает текущий статус и результат проверки
+      parameters:
+        - name: checkId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-проверки
+          schema:
+            type: string
+            format: uuid
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+        - name: wait
+          in: query
+          required: false
+          description: Максимальное время ожидания ответа
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 60
+            default: 30
+          example: 30
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/publicFraudCheckResponse'
+        '204':
+          description: Проверка в процессе. Новая информация отсутствует
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Проверка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '504':
+          description: Тайм-аут
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+  /internal/fraud-checks/{checkId}:
+    get:
+      tags:
+        - Fraud Checks
+      summary: Показать полную информацию о проверке (внутренний пользователь)
+      description: Показывает проверку со всеми данными, доступными внутренним пользователям
+      parameters:
+        - name: checkId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-проверки
+          schema:
+            type: string
+            format: uuid
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalFraudCheckResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Проверка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'   
+      security:
+        - bearerAuth: []   
+  /fraud-checks/{checkId}/manual-review:
+    get:
+      tags:
+        - Manual Reviews
+      summary: Показать ручную проверку
+      description: Показывает ручную проверку по конкретной операции
+      parameters:
+        - name: checkId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-проверки
+          schema:
+            type: string
+            format: uuid
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/manualReviewResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Ручная проверка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+      - bearerAuth: []
+    patch:
+      tags:
+        - Manual Reviews
+      summary: Обновить ручную проверку
+      description: Заполняет данные ручной проверки
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности запроса
+          schema:
+            type: string
+            format: uuid
+          example: "91f3bb9b-6227-40c4-84fa-58d7bc6d1b21"
+        - name: checkId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-проверки
+          schema:
+            type: string
+            format: uuid
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+      requestBody:
+        required: true
+        description: Данные для обновления
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/manualReviewUpdateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/manualReviewResponse'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Ручная проверка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '423':
+          description: Ресурс заблокирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+  /fraud-rules:
+    get:
+      tags:
+        - Fraud Rules
+      summary: Показать список антифрод-правил
+      description: Показывает список всех антифрод-правил
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Количество элементов на странице
+          schema: 
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+        - name: active
+          in: query
+          required: false
+          description: Фильтр по активности правил
+          schema:
+            type: boolean
+            default: true
+          example: true
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/fraudRule'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Fraud Rules
+      summary: Создать антифрод-правило
+      description: Создает антифрод-правило
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности запроса
+          schema:
+            type: string
+            format: uuid
+          example: "91f3bb9b-6227-40c4-84fa-58d7bc6d1b21"
+      requestBody:
+        required: true
+        description: Данные антифрод-правила
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fraudRuleCreateRequest'
+      responses:
+        '201':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fraudRule'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '409':
+          description: Конфликт
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse' 
+      security:
+        - bearerAuth: []         
+  /fraud-rules/{ruleId}:
+    get:
+      tags:
+        - Fraud Rules
+      summary: Показать антифрод-правило
+      description: Показывает конкретное антифрод-правило
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-правила
+          schema:
+            type: string
+            format: uuid
+          example: "2b9fa56f-1980-4cf9-9dcb-91b89cbff6cb"
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fraudRule'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Антифрод-правило не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+      security:
+        - bearerAuth: []
+    patch:
+      tags:
+        - Fraud Rules
+      summary: Обновить антифрод-правило
+      description: Обновляет данные антифрод-правила
+      parameters: 
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности запроса
+          schema:
+            type: string
+            format: uuid
+          example: "91f3bb9b-6227-40c4-84fa-58d7bc6d1b21"
+        - name: ruleId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-правила
+          schema:
+            type: string
+            format: uuid
+          example: "2b9fa56f-1980-4cf9-9dcb-91b89cbff6cb"
+      requestBody:
+        required: true
+        description: Данные для обновления
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fraudRuleUpdateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fraudRule'
+        '400':
+          description: Невалидный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Антифрод-правило не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '409':
+          description: Конфликт
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '503':
+          description: Сервис временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'  
+      security:
+        - bearerAuth: []
