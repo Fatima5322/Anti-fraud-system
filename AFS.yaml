@@ -488,7 +488,7 @@ components:
           minLength: 1
           maxLength: 1000
           description: Описание антифрод-правила
-          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 EUR"
     fraudRuleUpdateRequest:
       type: object
       description: Запрос на обновление антифрод-правила
@@ -505,7 +505,7 @@ components:
           minLength: 1
           maxLength: 1000
           description: Описание антифрод-правила
-          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 EUR"
         isActive:
           type: boolean
           description: Индикатор активности правила
@@ -575,6 +575,12 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '403':
           description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Несуществующая страница
           content:
             application/json:
               schema:
@@ -1047,6 +1053,12 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '403':
           description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Несуществующая страница
           content:
             application/json:
               schema:
