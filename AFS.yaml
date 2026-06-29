@@ -427,10 +427,16 @@ components:
         - $ref: "#/components/schemas/fraudCheck"
         - type: object
           properties:
-            manualReview:
-              oneOf:
-                - $ref: "#/components/schemas/manualReview"
-                - type: "null"
+            _links:
+              type: object
+              description: Ссылки
+              required:
+                - self
+              properties:
+                self: 
+                  $ref: "#/components/schemas/link"
+                manualReview:
+                  $ref: "#/components/schemas/link"
     manualReviewUpdateRequest:
       type: object
       description: Запрос на обновление ручной проверки
@@ -1216,4 +1222,4 @@ paths:
               schema:
                 $ref: '#/components/schemas/errorResponse'  
       security:
-        - bearerAuth: []
+        - bearerAuth: [] 
