@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Список проверок для внутреннего пользователя системы",
+  "description": "JSON Schema для валидации ответа для GET /api/v1/fraud-checks",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "checkId",
+      "transactionId",
+      "senderAccount",
+      "recipientAccount",
+      "amount",
+      "currency",
+      "transactionDate",
+      "ipAddress",
+      "originCountry",
+      "deviceId",
+      "paymentChannel",
+      "tariff",
+      "status",
+      "rulesDecision",
+      "riskLevel",
+      "automaticDecision",
+      "finalDecision",
+      "createdAt",
+      "completedAt",
+      "_links"
+    ],
+    "properties": {
+      "checkId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "transactionId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "senderAccount": {
+        "type": "string"
+      },
+      "recipientAccount": {
+        "type": "string"
+      },
+      "amount": {
+        "type": "number",
+        "format": "double",
+        "minimum": 0.01
+      },
+      "currency": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 3
+      },
+      "transactionDate": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "ipAddress": {
+        "type": "string"
+      },
+      "originCountry": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2
+      },
+      "deviceId": {
+        "type": "string"
+      },
+      "paymentChannel": {
+        "type": "string",
+        "enum": [
+          "MOBILE_APP",
+          "WEB"
+        ]
+      },
+      "tariff": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "FAILED",
+          "CANCELLED"
+        ]
+      },
+      "rulesDecision": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "APPROVED",
+          "REJECTED",
+          "MANUAL_REVIEW",
+          null
+        ]
+      },
+      "riskLevel": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "UNKNOWN",
+          null
+        ]
+      },
+      "automaticDecision": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "APPROVED",
+          "REJECTED",
+          "MANUAL_REVIEW",
+          null
+        ]
+      },
+      "finalDecision": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "APPROVED",
+          "REJECTED",
+          null
+        ]
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "completedAt": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date-time"
+      },
+      "_links": {
+        "type": "object",
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "type": "object",
+            "required": [
+              "href",
+              "method"
+            ],
+            "properties": {
+              "href": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PATCH"
+                ]
+              }
+            }
+          },
+          "manualReview": {
+            "type": "object",
+            "required": [
+              "href",
+              "method"
+            ],
+            "properties": {
+              "href": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PATCH"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
