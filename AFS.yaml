@@ -101,9 +101,11 @@ components:
           type: string
           description: Текущий статус проверки
           enum:
+            - PENDING
             - IN_PROGRESS
-            - MANUAL_REVIEW
             - COMPLETED
+            - CANCELLED
+            - FAILED
           example: "IN_PROGRESS"
         rulesDecision:
           type:
@@ -163,7 +165,7 @@ components:
       required:
         - reviewId
         - checkId
-        - status
+        - mrStatus
         - comment
         - finalDecision
         - createdAt
@@ -179,7 +181,7 @@ components:
           format: uuid
           description: Уникальный идентификатор антифрод-проверки
           example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
-        status:
+        mrStatus:
           type: string
           description: Текущий статус проверки
           enum:
@@ -240,7 +242,7 @@ components:
           minLength: 1
           maxLength: 1000
           description: Описание правила
-          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 евро"
+          example: "Запускает дополнительную проверку при переводах на сумму свыше 100000 EUR"
         isActive:
           type: boolean
           description: Индикатор активности правила
@@ -384,6 +386,19 @@ components:
           maxLength: 50
           description: Тарифный план клиента
           example: "Premium"
+    fraudCheckUpdateRequest:
+      type: object
+      description: Запрос на обновление статуса антифрод-проверки
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Новый статус антифрод-проверки
+          enum:
+            - CANCELLED
+          example: "CANCELLED"
     publicFraudCheckResponse:
       type: object
       description: Публичная информация о проверке, доступная платежной системе
@@ -402,9 +417,11 @@ components:
           type: string
           description: Текущий статус проверки
           enum:
+            - PENDING
             - IN_PROGRESS
-            - MANUAL_REVIEW
             - COMPLETED
+            - CANCELLED
+            - FAILED
           example: "IN_PROGRESS"
         finalDecision:
           type:
@@ -522,7 +539,7 @@ components:
       scheme: bearer
       bearerFormat: jwt
 paths:
-  /fraud-checks:
+  /api/v1/fraud-checks:
     get:
       tags:
         - Fraud Checks
@@ -554,9 +571,20 @@ paths:
           schema:
             type: string
             enum:
+              - PENDING
               - IN_PROGRESS
-              - MANUAL_REVIEW
               - COMPLETED
+              - CANCELLED
+              - FAILED
+          example: PENDING
+        - name: automaticDecision
+          in: query
+          required: false
+          description: Фильтр по наличию ручной проверки по операции
+          schema:
+            type: string
+            enum:
+              - MANUAL_REVIEW
           example: MANUAL_REVIEW
       responses:
         '200':
@@ -593,12 +621,6 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '429':
           description: Лимит запросов превышен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
           content:
             application/json:
               schema:
@@ -669,21 +691,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
-        '504':
-          description: Тайм-аут
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
       security:
         - bearerAuth: []
-  /fraud-checks/{checkId}:
+  /api/v1/fraud-checks/{checkId}:
     get:
       tags:
         - Fraud Checks
@@ -747,21 +757,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
+      security:
+        - bearerAuth: []
+  /fraud-checks/{checkId}:
+    patch:
+      tags:
+        - Fraud Checks
+      summary: Обновить статус анифрод-проверки
+      description: Обновляет статус антифрод-проверки
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности запроса
+          schema:
+            type: string
+            format: uuid
+          example: "91f3bb9b-6227-40c4-84fa-58d7bc6d1b21"
+        - name: checkId
+          in: path
+          required: true
+          description: Уникальный идентификатор антифрод-проверки
+          schema:
+            type: string
+            format: uuid
+          example: "7df76e95-9e5b-4aef-b09e-f7ab826afdf6"
+      requestBody:
+        required: true
+        description: Данные для обновления
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fraudCheckUpdateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/publicFraudCheckResponse'
+        '400':
+          description: Невалидный запрос
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '504':
-          description: Тайм-аут
+        '401':
+          description: Требуется авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '404':
+          description: Проверка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '409':
+          description: Конфликт
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '429':
+          description: Лимит запросов превышен
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
       security:
-        - bearerAuth: []
-  /internal/fraud-checks/{checkId}:
+        - bearerAuth: []  
+  /api/v1/internal/fraud-checks/{checkId}:
     get:
       tags:
         - Fraud Checks
@@ -807,15 +880,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'   
       security:
-        - bearerAuth: []   
-  /fraud-checks/{checkId}/manual-review:
+        - bearerAuth: []  
+  /api/v1/fraud-checks/{checkId}/manual-review:
     get:
       tags:
         - Manual Reviews
@@ -851,12 +918,6 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '404':
           description: Ручная проверка не найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
           content:
             application/json:
               schema:
@@ -935,15 +996,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
       security:
         - bearerAuth: []
-  /fraud-rules:
+  /api/v1/fraud-rules:
     get:
       tags:
         - Fraud Rules
@@ -1005,12 +1060,6 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '429':
           description: Лимит запросов превышен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
           content:
             application/json:
               schema:
@@ -1081,15 +1130,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse' 
       security:
         - bearerAuth: []         
-  /fraud-rules/{ruleId}:
+  /api/v1/fraud-rules/{ruleId}:
     get:
       tags:
         - Fraud Rules
@@ -1131,12 +1174,6 @@ paths:
                 $ref: '#/components/schemas/errorResponse'
         '429':
           description: Лимит запросов превышен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
           content:
             application/json:
               schema:
@@ -1215,11 +1252,5 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponse'
-        '503':
-          description: Сервис временно недоступен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorResponse'  
       security:
         - bearerAuth: [] 
