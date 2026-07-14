@@ -62,13 +62,19 @@
 |rule_id|UUID|PK, FK|Ссылка на антифрод-правило|
 
 # Class Diagram MongoDB
-![MongoDB](MongoDB.svg)
+![MongoDB](Mongo_DB.svg)
 
 # JSON-объект
-![JSONobject](JSONobject.json)
+[JSONobject](JSONobject.json)
 
 # JSON Schema
-![JSONschema2](JSONschema2.json)
+[JSONschema2](JSONschema2.json)
+
+# DDL-скрипты
+[DDL](postgresql_ddl.sql)
+
+# DML-скрипты
+[DML](postgresql_dml.sql) 
 
 **Описание значимости артефакта**
 |Раздел|Содержание|
