@@ -70,12 +70,6 @@
 # JSON Schema
 ![JSONschema2](JSONschema2.json)
 
-# DDL-скрипты
-![postgresql_ddl](postgresql_ddl.sql)
-
-# DML-скрипты
-![postgresql_dml](postgresql_dml.sql)
-
 **Описание значимости артефакта**
 |Раздел|Содержание|
 |-|-|
