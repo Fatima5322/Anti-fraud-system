@@ -33,13 +33,3 @@
     "2b9fa56f-1980-4cf9-9dcb-91b89cbff6cb"
   ]
 }
-
-{
-  "_id": "6871c6d42e3d4c6c9c9a2001",
-  "rule_id": "2b9fa56f-1980-4cf9-9dcb-91b89cbff6cb",
-  "rule_name": "Крупная сумма",
-  "rule_description": "Запускает дополнительную проверку при переводах на сумму свыше 100000 EUR",
-  "is_active": true,
-  "created_at": "2026-06-25T09:00:00Z",
-  "updated_at": "2026-06-28T12:15:43Z"
-}
