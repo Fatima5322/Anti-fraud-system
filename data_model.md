@@ -10,7 +10,7 @@
 |Атрибут|Тип данных|Ограничения|Описание|
 |-|-|-|-|
 |transaction_id|UUID|PK|Уникальный идентификатор транзакции|
-|sender_account|VARCHAR (34)|NOT NuUll|Номер счета отправителя|
+|sender_account|VARCHAR (34)|NOT NUll|Номер счета отправителя|
 |recipient_account|VARCHAR (34)|NOT NUll|Номер счета получателя|
 |amount|NUMERIC (15,2)|NOT NULL, CHECK (amount > 0)|Сумма перевода|
 |currency|VARCHAR (3)|CHECK (LENGTH (currency) = 3), NOT NULL|Валюта|
