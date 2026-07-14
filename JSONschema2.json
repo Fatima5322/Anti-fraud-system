@@ -1,0 +1,247 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "MongoDB-документ антифрод-проверки",
+  "description": "JSON Schema для валидации документа антифрод-проверки",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "_id",
+    "check_id",
+    "status",
+    "risk_level",
+    "rules_decision",
+    "automatic_decision",
+    "final_decision",
+    "created_at",
+    "completed_at",
+    "transaction",
+    "rule_ids"
+  ],
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "check_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "IN_PROGRESS",
+        "MANUAL_REVIEW",
+        "COMPLETED"
+      ]
+    },
+    "risk_level": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "UNKNOWN"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rules_decision": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED",
+            "MANUAL_REVIEW"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "automatic_decision": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED",
+            "MANUAL_REVIEW"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "final_decision": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transaction_id",
+        "sender_account",
+        "recipient_account",
+        "amount",
+        "currency",
+        "transaction_date",
+        "ip_address",
+        "origin_country",
+        "device_id",
+        "payment_channel",
+        "tariff"
+      ],
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sender_account": {
+          "type": "string"
+        },
+        "recipient_account": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0.01
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "transaction_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ip_address": {
+          "type": "string"
+        },
+        "origin_country": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2
+        },
+        "device_id": {
+          "type": "string"
+        },
+        "payment_channel": {
+          "type": "string",
+          "enum": [
+            "MOBILE_APP",
+            "WEB"
+          ]
+        },
+        "tariff": {
+          "type": "string"
+        }
+      }
+    },
+    "manual_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_id",
+        "mr_status",
+        "comment",
+        "final_decision",
+        "created_at",
+        "completed_at"
+      ],
+      "properties": {
+        "review_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "mr_status": {
+          "type": "string",
+          "enum": [
+            "IN_PROGRESS",
+            "COMPLETED"
+          ]
+        },
+        "comment": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "final_decision": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "REJECTED"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "rule_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  }
+}
