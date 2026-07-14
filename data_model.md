@@ -53,7 +53,7 @@
 |rule_description|TEXT|NOT NULL|Описание антифрод-правила|
 |is_active|BOOLEAN|NOT NULL|Индикатор активности правила|
 |created_at|TIMESTAMP|NOT NULL|Дата и время создания антифрод-правила|
-|updated_at|TIMESTAMP|CHECK (updated_at > created_at), NOT NULL|Дата и время последнего обновления антифрод-правила|
+|updated_at|TIMESTAMP|CHECK (updated_at > created_at)|Дата и время последнего обновления антифрод-правила|
 
 #### Связующая таблица fraud_check_rule
 |Атрибут|Тип данных|Ограничения|Описание|
