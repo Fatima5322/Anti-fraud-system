@@ -15,7 +15,7 @@
     "created_at",
     "completed_at",
     "transaction",
-    "rule_ids"
+    "fraud_rules"
   ],
   "properties": {
     "_id": {
@@ -236,11 +236,47 @@
         }
       }
     },
-    "rule_ids": {
+    "fraud_rules": {
       "type": "array",
+      "minItems": 1,
       "items": {
-        "type": "string",
-        "format": "uuid"
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "_id",
+          "rule_id",
+          "rule_name",
+          "rule_description",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rule_name": {
+            "type": "string"
+          },
+          "rule_description": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   }
