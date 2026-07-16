@@ -1,8 +1,8 @@
 # Концептуальная модель данных в нотации Чена
-![Chen_notation](Chen_notation.svg)
+![Chen_notation](Chen_notation1.svg)
 
 # Логическая/физическая модель данных в нотации Мартина
-![Martin_notation](Martin_notation.svg)
+![Martin_notation](Martin_notation1.svg)
 
 ## Табличная часть
 
@@ -16,7 +16,7 @@
 |currency|VARCHAR (3)|CHECK (currency IN ('RUB', 'EUR', 'USD')), NOT NULL|Валюта|
 |transaction_date|TIMESTAMP|NOT NULL|Дата и время инициации транзакции|
 |ip_address|VARCHAR (15)|NOT NULL|IP-адрес клиента|
-|origin_country|VARCHAR (2)|CHECK (LENGTH (origin_country) = 2), NOT NULL|Код страны, из которой была инициирована транзакция|
+|origin_country|VARCHAR (2)|NOT NULL|Код страны, из которой была инициирована транзакция|
 |device_id|VARCHAR (255)| NOT NULL|Уникальный идентификатор девайса, с которого инициирована транзакция|
 |payment_channel|VARCHAR (10)|NOT NULL, CHECK (payment_channel IN ('MOBILE_APP', 'WEB'))|Канал, через который была инициирована транзакция|
 |tariff|VARCHAR (20)|NOT NULL|Тарифный план клиента|
@@ -62,7 +62,7 @@
 |rule_id|UUID|PK, FK|Ссылка на антифрод-правило|
 
 # Class Diagram MongoDB
-![MongoDB](Mongo_DB.svg)
+![MongoDB](Mongo_DB1.svg)
 
 # JSON-объект
 [JSONobject](JSONobject.json)
