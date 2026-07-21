@@ -580,10 +580,12 @@ paths:
         - name: automaticDecision
           in: query
           required: false
-          description: Фильтр по наличию ручной проверки по операции
+          description: Фильтр по автоматическому решению
           schema:
             type: string
             enum:
+              - APPROVED
+              - REJECTED
               - MANUAL_REVIEW
           example: MANUAL_REVIEW
       responses:
